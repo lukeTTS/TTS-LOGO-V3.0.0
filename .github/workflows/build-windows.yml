@@ -1,0 +1,138 @@
+name: Build Windows Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version, for example 2.0.1"
+        required: true
+        default: "3.0.0"
+        type: string
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build EXE and installer
+    runs-on: windows-latest
+
+    env:
+      PROJECT_PATH: AlphaLogoUploader/AlphaLogoUploader.csproj
+      SOLUTION_PATH: AlphaLogoUploaderNative.sln
+      PUBLISH_DIR: publish
+      INSTALLER_SCRIPT: installer/AlphaLogoUploader.iss
+      INSTALLER_OUTPUT: installer/output
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Resolve release version
+        id: version
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            $version = "${{ inputs.version }}"
+          } else {
+            $version = "${{ github.ref_name }}" -replace '^v', ''
+          }
+
+          if ($version -notmatch '^\d+\.\d+\.\d+([-.][0-9A-Za-z.-]+)?$') {
+            throw "Version '$version' is invalid. Use a value such as 2.0.1."
+          }
+
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "RELEASE_VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
+          Write-Host "Building version $version"
+
+      - name: Install .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Set installer version
+        shell: pwsh
+        run: |
+          $iss = Get-Content $env:INSTALLER_SCRIPT -Raw
+          $iss = $iss -replace '#define AppVersion "[^"]+"', "#define AppVersion `"$env:RELEASE_VERSION`""
+          Set-Content -Path $env:INSTALLER_SCRIPT -Value $iss -Encoding UTF8
+
+      - name: Restore dependencies
+        run: dotnet restore $env:PROJECT_PATH
+        shell: pwsh
+
+      - name: Publish self-contained Windows EXE
+        shell: pwsh
+        run: |
+          dotnet publish $env:PROJECT_PATH `
+            --configuration Release `
+            --runtime win-x64 `
+            --self-contained true `
+            -p:PublishSingleFile=true `
+            -p:IncludeNativeLibrariesForSelfExtract=true `
+            -p:EnableCompressionInSingleFile=true `
+            -p:DebugType=None `
+            -p:DebugSymbols=false `
+            -p:Version=$env:RELEASE_VERSION `
+            -p:AssemblyVersion="$env:RELEASE_VERSION.0" `
+            -p:FileVersion="$env:RELEASE_VERSION.0" `
+            --output $env:PUBLISH_DIR
+
+          $exe = Join-Path $env:PUBLISH_DIR "AlphaLogoUploader.exe"
+          if (-not (Test-Path $exe)) {
+            throw "The self-contained executable was not produced."
+          }
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --yes --no-progress
+
+      - name: Build Windows installer
+        shell: pwsh
+        run: |
+          $compiler = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $compiler)) {
+            throw "Inno Setup compiler was not found at $compiler"
+          }
+
+          & $compiler $env:INSTALLER_SCRIPT
+          if ($LASTEXITCODE -ne 0) {
+            throw "Inno Setup failed with exit code $LASTEXITCODE"
+          }
+
+          $installer = Get-ChildItem $env:INSTALLER_OUTPUT -Filter "*.exe" | Select-Object -First 1
+          if (-not $installer) {
+            throw "The Windows installer was not produced."
+          }
+
+      - name: Create portable ZIP
+        shell: pwsh
+        run: |
+          $zip = "AlphaLogoUploader-$env:RELEASE_VERSION-Portable-win-x64.zip"
+          Compress-Archive -Path "$env:PUBLISH_DIR\*" -DestinationPath $zip -Force
+          "PORTABLE_ZIP=$zip" | Out-File -FilePath $env:GITHUB_ENV -Append
+
+      - name: Collect release files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path release-files -Force | Out-Null
+          Copy-Item "$env:PUBLISH_DIR\AlphaLogoUploader.exe" "release-files\AlphaLogoUploader-$env:RELEASE_VERSION.exe"
+          Copy-Item $env:PORTABLE_ZIP release-files\
+          Copy-Item "$env:INSTALLER_OUTPUT\*.exe" release-files\
+
+          Get-ChildItem release-files | ForEach-Object {
+            $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$hash  $($_.Name)" | Add-Content release-files\SHA256SUMS.txt
+          }
+
+      - name: Upload finished Windows files
+        uses: actions/upload-artifact@v4
+        with:
+          name: AlphaLogoUploader-${{ steps.version.outputs.version }}-Windows
+          path: release-files/*
+          if-no-files-found: error
+          retention-days: 30
