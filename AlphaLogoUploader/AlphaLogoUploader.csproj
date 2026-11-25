@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>AlphaLogoUploader</AssemblyName>
+    <RootNamespace>AlphaLogoUploader</RootNamespace>
+    <ApplicationIcon>app.ico</ApplicationIcon>
+    <Version>3.0.0</Version>
+    <Authors>Test &amp; Tag Supplies</Authors>
+    <Product>TTS Printer Logo Uploader</Product>
+    <Description>Prepare and upload logo graphics to Zebra ZQ520/ZQ521 and GoDEX RT200 printers for use with the Metrel Alpha 3340.</Description>
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+  </PropertyGroup>
+  <ItemGroup><Resource Include="Assets/TTSLogo.png"/><Resource Include="Assets/TTSMark.png"/></ItemGroup>
+</Project>

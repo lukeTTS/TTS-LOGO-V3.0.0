@@ -1,0 +1,9 @@
+.vs/
+.idea/
+**/bin/
+**/obj/
+publish/
+installer/output/
+release-files/
+*.user
+*.suo

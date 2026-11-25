@@ -1,0 +1,246 @@
+<Window x:Class="AlphaLogoUploader.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="TTS Printer Logo Uploader"
+        Height="900"
+        Width="1400"
+        MinHeight="600"
+        MinWidth="960"
+        Closing="Window_Closing">
+    <DockPanel>
+        <Border DockPanel.Dock="Top" Background="#F7F7F7" BorderBrush="#CC0000" BorderThickness="0,0,0,3" Padding="20,12">
+            <Grid><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <Image Source="Assets/TTSLogo.png" Width="205" Height="70" Stretch="Uniform" Margin="0,0,20,0"/>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="Printer Logo Uploader" FontSize="26" FontWeight="Bold"/>
+                    <TextBlock Text="Prepare and upload your logo to compatible test and tag printers." FontSize="13" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center"><Button Content="Help" Click="Help_Click"/><TextBlock x:Name="VersionText" VerticalAlignment="Center" Margin="8,0,0,0"/></StackPanel>
+            </Grid>
+        </Border>
+
+        <Border DockPanel.Dock="Bottom" Background="#FFFFFF" BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="18,10">
+            <Grid>
+                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                <TextBlock x:Name="StatusText" Text="Ready" Foreground="{StaticResource MutedBrush}"/>
+                <ProgressBar x:Name="BusyProgress" Grid.Column="1" Width="190" Height="7" IsIndeterminate="True" Visibility="Collapsed"/>
+            </Grid>
+        </Border>
+
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+            <Grid Margin="16" MaxWidth="1540">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.65*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="0.85*" MinWidth="320"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <!-- Step 1 -->
+                    <Border Style="{StaticResource CardBorder}">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,14">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border Width="28" Height="28" CornerRadius="14" Background="#CC0000" VerticalAlignment="Top">
+                                    <TextBlock Text="1" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                    <TextBlock Text="Select your equipment" FontSize="17" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Choose the equipment combination used for this logo." Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock Text="Equipment setup" FontWeight="SemiBold" FontSize="12"/>
+                            <ComboBox x:Name="EquipmentProfileCombo" SelectionChanged="EquipmentProfileChanged" FontSize="14">
+                                <ComboBoxItem Content="Metrel Alpha 3340 with GoDEX printer" Tag="AlphaGodex"/>
+                                <ComboBoxItem Content="Metrel Alpha 3340 with Zebra ZQ521 printer" Tag="AlphaZebra" IsSelected="True"/>
+                                <ComboBoxItem Content="Metrel 3309BT with GoDEX printer" Tag="M3309Godex"/>
+                                <ComboBoxItem Content="Seaward tester with Zebra ZQ printer" Tag="SeawardZebra"/>
+                            </ComboBox>
+
+                            <Border Background="{StaticResource AccentSoftBrush}" BorderBrush="#BFD9D8" BorderThickness="1" CornerRadius="6" Padding="13" Margin="0,6,0,0">
+                                <StackPanel>
+                                    <TextBlock x:Name="ProfileTitleText" FontWeight="SemiBold"/>
+                                    <TextBlock x:Name="ProfileDescriptionText" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Step 2 -->
+                    <Border Style="{StaticResource CardBorder}">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,14">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border Width="28" Height="28" CornerRadius="14" Background="#CC0000" VerticalAlignment="Top">
+                                    <TextBlock Text="2" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                    <TextBlock Text="Prepare your logo" FontSize="17" FontWeight="SemiBold"/>
+                                    <TextBlock Text="The preview represents the final monochrome printer output." Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <Grid Margin="0,0,0,10"><Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="12"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="5" Background="White"><DockPanel><TextBlock DockPanel.Dock="Top" Text="Original image (colour)" Background="#E5E6DC" Padding="8" TextAlignment="Center" FontWeight="SemiBold"/><Grid Height="150" Margin="10"><Image x:Name="OriginalImage" Stretch="Uniform"/><TextBlock x:Name="OriginalPlaceholder" Text="Choose a logo to begin" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource MutedBrush}"/></Grid></DockPanel></Border>
+                                <Border Grid.Column="2" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="5" Background="White"><DockPanel><TextBlock DockPanel.Dock="Top" Text="Printer output (monochrome)" Background="#E5E6DC" Padding="8" TextAlignment="Center" FontWeight="SemiBold"/><Grid Height="150" Margin="10"><Image x:Name="PreviewImage" Stretch="Uniform" SnapsToDevicePixels="True" RenderOptions.BitmapScalingMode="NearestNeighbor"/><TextBlock x:Name="PreviewPlaceholder" Text="Output preview" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource MutedBrush}"/></Grid></DockPanel></Border>
+                            </Grid>
+                            <TextBlock x:Name="OutputInfoText" Text="No logo selected." TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" Margin="0,0,0,8"/>
+                                    <Border Background="#FBFBFA" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="7" Padding="13" Margin="0,0,0,8">
+                                        <StackPanel>
+                                            <TextBlock Text="Selected logo" FontWeight="SemiBold"/>
+                                            <TextBox x:Name="ImagePathText" IsReadOnly="True" Margin="0,5,0,4" TextWrapping="NoWrap"/>
+                                            <TextBlock x:Name="ImageInfoText" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,0,0,10"/>
+                                            <Button Content="Choose image…" Click="ChooseImage_Click" HorizontalAlignment="Left"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <TextBlock Text="Logo width and height (pixels; 0 = automatic)" FontWeight="SemiBold" FontSize="12"/>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                        <TextBox x:Name="TargetWidthText" Text="0" TextChanged="EditorChanged" ToolTip="0 keeps the natural width"/>
+                                        <TextBox x:Name="TargetHeightText" Grid.Column="1" Text="0" TextChanged="EditorChanged" ToolTip="0 calculates the height proportionally"/>
+                                    </Grid>
+
+                                    <Grid Margin="0,3,0,0">
+                                        <Grid.ColumnDefinitions><ColumnDefinition Width="1*"/><ColumnDefinition Width="1.35*"/></Grid.ColumnDefinitions>
+                                        <StackPanel>
+                                            <TextBlock Text="Rotation" FontWeight="SemiBold" FontSize="12"/>
+                                            <ComboBox x:Name="RotationCombo" SelectionChanged="EditorChanged">
+                                                <ComboBoxItem Content="0"/><ComboBoxItem Content="90" IsSelected="True"/><ComboBoxItem Content="180"/><ComboBoxItem Content="270"/>
+                                            </ComboBox>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Text="Black and white threshold" FontWeight="SemiBold" FontSize="12"/>
+                                            <TextBlock Text="{Binding ElementName=ThresholdSlider, Path=Value, StringFormat={}{0:F0}}" HorizontalAlignment="Right"/><Slider x:Name="ThresholdSlider" Minimum="1" Maximum="254" Value="128" TickFrequency="16" ValueChanged="EditorChanged" Margin="0,13,8,10"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <WrapPanel Margin="0,4,0,6">
+                                        <Button Content="Auto-crop" Click="AutoCrop_Click"/>
+                                        <Button Content="Reset crop" Click="ResetCrop_Click"/>
+                                    </WrapPanel>
+
+                                    <CheckBox x:Name="InvertCheck" Content="Invert black and white" Margin="0,5,0,8" Checked="EditorChanged" Unchecked="EditorChanged"/>
+
+                                    <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,1,0,0" Padding="0,12,0,0" Margin="0,5,0,0">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="150"/></Grid.ColumnDefinitions>
+                                            <StackPanel>
+                                                <TextBlock Text="Printer filename" FontWeight="SemiBold" FontSize="12"/>
+                                                <TextBox x:Name="GraphicNameText" Text="custlogo" TextChanged="EditorChanged" ToolTip="Enter the printer file name without the extension"/>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1">
+                                                <TextBlock Text="File format (Zebra)" FontWeight="SemiBold" FontSize="12"/>
+                                                <ComboBox x:Name="UploadTargetCombo" SelectionChanged="UploadTargetChanged">
+                                                    <ComboBoxItem Content="Zebra GRF" Tag="GRF" IsSelected="True"/>
+                                                    <ComboBoxItem Content="Seaward PCX" Tag="PCX"/>
+                                                </ComboBox>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                    <TextBlock x:Name="FileNameHintText" Foreground="{StaticResource MutedBrush}" FontSize="11" TextWrapping="Wrap"/>
+                        <Expander Header="Advanced image and canvas settings" Margin="0,16,0,0">
+                            <StackPanel Margin="0,12,0,0">
+                                <Grid>
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+                                    <StackPanel><TextBlock Text="Move left / right" FontSize="12" FontWeight="SemiBold"/><TextBox x:Name="OffsetXText" Text="0" TextChanged="EditorChanged" ToolTip="Positive moves right; negative moves left"/></StackPanel>
+                                    <StackPanel Grid.Column="1"><TextBlock Text="Move up / down" FontSize="12" FontWeight="SemiBold"/><TextBox x:Name="OffsetYText" Text="0" TextChanged="EditorChanged" ToolTip="Positive moves down; negative moves up"/></StackPanel>
+                                    <StackPanel Grid.Row="1"><TextBlock Text="Crop X" FontSize="12" FontWeight="SemiBold"/><TextBox x:Name="CropXText" Text="0" TextChanged="EditorChanged"/></StackPanel>
+                                    <StackPanel Grid.Row="1" Grid.Column="1"><TextBlock Text="Crop Y" FontSize="12" FontWeight="SemiBold"/><TextBox x:Name="CropYText" Text="0" TextChanged="EditorChanged"/></StackPanel>
+                                    <StackPanel Grid.Row="2"><TextBlock Text="Crop width" FontSize="12" FontWeight="SemiBold"/><TextBox x:Name="CropWidthText" Text="0" TextChanged="EditorChanged"/></StackPanel>
+                                    <StackPanel Grid.Row="2" Grid.Column="1"><TextBlock Text="Crop height" FontSize="12" FontWeight="SemiBold"/><TextBox x:Name="CropHeightText" Text="0" TextChanged="EditorChanged"/></StackPanel>
+                                    <CheckBox x:Name="UseCanvasSizeCheck" Grid.Row="3" Content="Use separate canvas size" Checked="CanvasOptionChanged" Unchecked="CanvasOptionChanged" Margin="0,8,0,3"/>
+                                    <Button Grid.Row="3" Grid.Column="1" Content="Set canvas to 360 × 360" Click="GodexSizePreset_Click" Margin="0,4,0,4"/>
+                                </Grid>
+                                <Grid Margin="0,5,0,0">
+                                    <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                    <StackPanel><TextBlock Text="Canvas width" FontSize="12" FontWeight="SemiBold"/><TextBox x:Name="CanvasWidthText" Text="360" TextChanged="EditorChanged"/></StackPanel>
+                                    <StackPanel Grid.Column="1"><TextBlock Text="Canvas height" FontSize="12" FontWeight="SemiBold"/><TextBox x:Name="CanvasHeightText" Text="360" TextChanged="EditorChanged"/></StackPanel>
+                                </Grid>
+                                <TextBlock x:Name="SizePresetHint" Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Expander>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <!-- Step 3 -->
+                <StackPanel Grid.Column="2">
+                    <Border Style="{StaticResource CardBorder}">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,14">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions>
+                                <Border Width="28" Height="28" CornerRadius="14" Background="#CC0000" VerticalAlignment="Top">
+                                    <TextBlock Text="3" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Grid.Column="1" Margin="10,0,0,0">
+                                    <TextBlock Text="Connect and upload" FontSize="17" FontWeight="SemiBold"/>
+                                    <TextBlock Text="Select the connection, review the settings, then upload." Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock Text="Printer connection" FontWeight="SemiBold" FontSize="12" Margin="0,0,0,8"/>
+                            <RadioButton x:Name="QueueModeRadio" Content="Windows / USB printer queue" IsChecked="True" Checked="ConnectionModeChanged"/>
+                            <Grid Margin="24,7,0,12">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+                                <ComboBox x:Name="PrinterCombo" SelectionChanged="DestinationChanged"/>
+                                <Button Grid.Column="1" Content="Refresh" Click="RefreshPrinters_Click" Margin="0,4,0,8"/>
+                            </Grid>
+
+                            <RadioButton x:Name="IpModeRadio" Content="Network printer by IP address" Checked="ConnectionModeChanged"/>
+                            <Grid Margin="24,7,0,12">
+                                <Grid.ColumnDefinitions><ColumnDefinition Width="*"/><ColumnDefinition Width="84"/></Grid.ColumnDefinitions>
+                                <TextBox x:Name="IpText" TextChanged="DestinationChanged" ToolTip="Example: 192.168.1.55"/>
+                                <TextBox x:Name="PortText" TextChanged="DestinationChanged" Grid.Column="1" Text="9100" ToolTip="RAW TCP port"/>
+                            </Grid>
+
+                            <Button Content="Test connection" Click="Diagnostic_Click" Margin="0,0,0,8"/>
+                            <Border Background="{StaticResource AccentSoftBrush}" BorderBrush="#99CCCC" BorderThickness="1" CornerRadius="7" Padding="15" Margin="0,8,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="Upload summary" FontWeight="SemiBold" FontSize="15"/>
+                                    <TextBlock x:Name="UploadSummaryText" TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,8,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Button x:Name="UploadButton" Content="Upload logo" Style="{StaticResource PrimaryButton}" Click="Upload_Click" FontSize="15" Padding="15,12" HorizontalAlignment="Stretch" Margin="0,14,0,0"/>
+                            <TextBlock Text="Print a test tag from your tester after upload to verify the logo." TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" FontSize="11" HorizontalAlignment="Center" Margin="0,7,0,0"/>
+
+                            <Border Background="#F6F7F5" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,14,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="Status" FontWeight="SemiBold"/>
+                                    <TextBlock x:Name="LogoStatusText" Text="Choose a logo to begin." TextWrapping="Wrap" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Button x:Name="SaveGraphicButton" Content="Save printer file…" Click="SaveFile_Click" Margin="0,12,0,0"/>
+                            <Expander x:Name="ToolsExpander" Header="Tools and diagnostics" Margin="0,16,0,0">
+                            <StackPanel Margin="0,12,0,0">
+
+                                <TextBlock x:Name="GraphicFileHint" Foreground="{StaticResource MutedBrush}" FontSize="11" Margin="0,0,0,8" TextWrapping="Wrap"/>
+                                <WrapPanel>
+
+                                    <Button x:Name="SaveDebugButton" Content="Save command details…" Click="SaveDebug_Click"/>
+                                    <Button x:Name="SavePassPcxButton" Content="Save PASS.PCX…" Click="SavePassPcx_Click" Visibility="Collapsed"/>
+                                    <Button x:Name="SaveFailPcxButton" Content="Save FAIL.PCX…" Click="SaveFailPcx_Click" Visibility="Collapsed"/>
+                                </WrapPanel>
+                                <TextBox x:Name="DiagnosticText" IsReadOnly="True" TextWrapping="Wrap" AcceptsReturn="True" MinHeight="150" VerticalScrollBarVisibility="Auto" Margin="0,10,0,0"/>
+                            </StackPanel>
+                            </Expander>
+                        </StackPanel>
+                    </Border>
+
+                    <StackPanel Visibility="Collapsed">
+                        <ComboBox x:Name="PrinterTypeCombo" SelectionChanged="PrinterTypeChanged">
+                            <ComboBoxItem Content="Zebra ZQ520 / ZQ521" Tag="Zebra" IsSelected="True"/>
+                            <ComboBoxItem Content="GoDEX RT200" Tag="Godex"/>
+                        </ComboBox>
+                        <TextBlock x:Name="UploadTargetLabel"/>
+                        <CheckBox x:Name="PersistCheck" Content="Store in flash" IsChecked="True" Checked="EditorChanged" Unchecked="EditorChanged"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+    </DockPanel>
+</Window>
